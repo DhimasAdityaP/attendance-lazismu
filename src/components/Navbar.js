@@ -21,7 +21,7 @@ const Navbar = () => {
         ) : (
           <>
             {userRole === 'karyawan' && (
-              <Link to="/attendance" className="nav-link">Take Attendance</Link>
+              <Link to="/attendance" className="nav-link">Mengambil Kehadiran</Link>
             )}
             {userRole === 'admin' && (
               <Link to="/admin" className="nav-link">Admin Panel</Link>

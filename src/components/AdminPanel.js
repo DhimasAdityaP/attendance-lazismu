@@ -135,24 +135,24 @@ const AdminPanel = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.header}>Admin Panel - Attendance Records</h2>
+      <h2 style={styles.header}>Admin Panel - Rekap Kehadiran</h2>
 
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
 
       {/* Button to export attendance records */}
-      <button onClick={exportToCSV} style={styles.button}>Export to CSV</button>
-      <button onClick={exportToXLSX} style={styles.button}>Export to XLSX</button>
+      <button onClick={exportToCSV} style={styles.button}>Ekspor ke CSV</button>
+      <button onClick={exportToXLSX} style={styles.button}>Ekspor ke XLSX</button>
 
       {/* List of attendance entries */}
       <ul style={styles.recordList}>
         {attendanceRecords.length === 0 ? (
-          <li style={styles.recordItem}>No attendance records available.</li>
+          <li style={styles.recordItem}>Rekap Kehadiran Tidak Ada</li>
         ) : (
           attendanceRecords.map((record, index) => (
             <li key={index} style={styles.recordItem}>
-              <strong>Date:</strong> {record.date} <br />
-              <strong>Name:</strong> {record.employee_name} <br />
-              <strong>Location:</strong> {record.location} <br />
+              <strong>Tanggal:</strong> {record.date} <br />
+              <strong>Nama:</strong> {record.employee_name} <br />
+              <strong>Lokasi Terkini:</strong> {record.location} <br />
               <strong>Status:</strong> {record.status} <br />
               <button onClick={() => handleEdit(index)} style={styles.editButton}>Edit</button>
               <button onClick={() => handleDelete(index, record.id)} style={styles.deleteButton}>Delete</button>

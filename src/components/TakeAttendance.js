@@ -66,10 +66,10 @@ const TakeAttendance = () => {
 
   return (
     <div className="attendance-form-container">
-      <h2>Take Attendance</h2>
+      <h2>Ambil Kehadiran</h2>
       <form onSubmit={handleSubmit} className="attendance-form">
         <div className="form-group">
-          <label>Date:</label>
+          <label>Tanggal:</label>
           <input 
             type="date" 
             value={date} 
@@ -79,7 +79,7 @@ const TakeAttendance = () => {
           />
         </div>
         <div className="form-group">
-          <label>Employee Name:</label>
+          <label>Nama Karyawan:</label>
           <input 
             type="text" 
             value={employeeName} 
@@ -89,7 +89,7 @@ const TakeAttendance = () => {
           />
         </div>
         <div className="form-group">
-          <label>Location:</label>
+          <label>Lokasi Terkini:</label>
           <input 
             type="text" 
             value={location} 
@@ -100,12 +100,12 @@ const TakeAttendance = () => {
         <div className="form-group">
           <label>Status:</label>
           <select value={status} onChange={(e) => setStatus(e.target.value)} className="form-control">
-            <option value="present">Present</option>
-            <option value="permission">Permission</option>
-            <option value="absent">Absent</option>
+            <option value="present">Hadir</option>
+            <option value="permission">Izin</option>
+            <option value="absent">Tidak Hadir</option>
           </select>
         </div>
-        <button type="submit" className="btn-submit">Submit Attendance</button>
+        <button type="submit" className="btn-submit">Kirim Kehadiran</button>
         {successMessage && <p className="message success">{successMessage}</p>}
         {errorMessage && <p className="message error">{errorMessage}</p>}
       </form>
