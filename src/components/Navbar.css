@@ -33,7 +33,7 @@
   }
   
   .logout-button {
-    background-color: red;
+    background-color: #ff9100;
     color: white;
     border: none;
     padding: 10px 15px;
@@ -44,7 +44,7 @@
   }
   
   .logout-button:hover {
-    background-color: darkred; /* Darker red on hover */
+    background-color: #ff9100; /* Darker red on hover */
   }
   
   /* Responsive styles */
