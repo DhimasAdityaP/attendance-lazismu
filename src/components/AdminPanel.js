@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AttendanceContext } from '../AttendanceContext';
-import { supabase } from '../supabaseClient'; // Import the Supabase client
-import * as XLSX from 'xlsx'; // Import XLSX for exporting to Excel
+import { supabase } from '../supabaseClient';
+import * as XLSX from 'xlsx';
 
 const AdminPanel = () => {
   const { attendanceRecords, setAttendanceRecords } = useContext(AttendanceContext);
@@ -9,36 +9,33 @@ const AdminPanel = () => {
   const [newRecord, setNewRecord] = useState({
     date: '',
     employee_name: '',
-    location: '', // Location will be set dynamically
+    location: '',
     status: 'present',
   });
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Load attendance records from Supabase on component mount
   useEffect(() => {
     const fetchAttendanceRecords = async () => {
       const { data, error } = await supabase
-        .from('attendance') // Supabase table name
+        .from('attendance')
         .select('*');
 
       if (error) {
         console.error('Error fetching attendance records:', error);
         setErrorMessage('Error fetching data.');
       } else {
-        setAttendanceRecords(data); // Set attendance data from the database
+        setAttendanceRecords(data);
       }
     };
-
     fetchAttendanceRecords();
   }, [setAttendanceRecords]);
 
-  // Function to delete an attendance record
   const handleDelete = async (index, id) => {
     try {
       const { error } = await supabase
         .from('attendance')
         .delete()
-        .eq('id', id); // Assuming 'id' is the unique identifier
+        .eq('id', id);
 
       if (error) {
         setErrorMessage('Error deleting record.');
@@ -53,7 +50,6 @@ const AdminPanel = () => {
     }
   };
 
-  // Function to prepare the record for editing
   const handleEdit = (index) => {
     setEditIndex(index);
     setNewRecord({
@@ -64,43 +60,48 @@ const AdminPanel = () => {
     });
   };
 
-  // Function to save the edited attendance record
-  const handleSave = async (index, id) => {
+  const handleSave = async () => {
     try {
-      const { error } = await supabase
-        .from('attendance')
-        .update({
-          date: newRecord.date,
-          employee_name: newRecord.employee_name,
-          location: newRecord.location,
-          status: newRecord.status,
-        })
-        .eq('id', id);
+      if (editIndex !== null) {
+        const { error } = await supabase
+          .from('attendance')
+          .update(newRecord)
+          .eq('id', attendanceRecords[editIndex].id);
 
-      if (error) {
-        setErrorMessage('Error saving record.');
-        return;
+        if (error) {
+          setErrorMessage('Error saving record.');
+          return;
+        }
+
+        const updatedRecords = attendanceRecords.map((record, i) =>
+          i === editIndex ? newRecord : record
+        );
+        setAttendanceRecords(updatedRecords);
+        setEditIndex(null);
+      } else {
+        const { data, error } = await supabase
+          .from('attendance')
+          .insert(newRecord)
+          .single();
+
+        if (error) {
+          setErrorMessage('Error creating record.');
+          return;
+        }
+        setAttendanceRecords([...attendanceRecords, data]);
       }
-
-      const updatedRecords = attendanceRecords.map((record, i) =>
-        i === index ? newRecord : record
-      );
-
-      setAttendanceRecords(updatedRecords);
-      setEditIndex(null);
+      setNewRecord({ date: '', employee_name: '', location: '', status: 'present' });
     } catch (err) {
       console.error('Error saving record:', err);
       setErrorMessage('Error saving record.');
     }
   };
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewRecord({ ...newRecord, [name]: value });
   };
 
-  // Function to export attendance records to CSV
   const exportToCSV = () => {
     const csvData = attendanceRecords.map(record => ({
       Date: record.date,
@@ -108,7 +109,6 @@ const AdminPanel = () => {
       Location: record.location,
       Status: record.status,
     }));
-
     const csvContent = [
       ["Date", "Employee Name", "Location", "Status"],
       ...csvData.map(row => Object.values(row)),
@@ -125,7 +125,6 @@ const AdminPanel = () => {
     document.body.removeChild(link);
   };
 
-  // Function to export attendance records to XLSX
   const exportToXLSX = () => {
     const worksheet = XLSX.utils.json_to_sheet(attendanceRecords);
     const workbook = XLSX.utils.book_new();
@@ -135,24 +134,68 @@ const AdminPanel = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.header}>Admin Panel - Rekap Kehadiran</h2>
+      <h2 style={styles.header}>Admin Panel - Attendance Records</h2>
+      {errorMessage && <p style={styles.error}>{errorMessage}</p>}
 
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <div style={styles.formContainer}>
+        <h3>{editIndex !== null ? 'Edit Attendance' : 'Add New Attendance'}</h3>
+        <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} style={styles.form}>
+          <input
+            type="date"
+            name="date"
+            value={newRecord.date}
+            onChange={handleInputChange}
+            style={styles.input}
+            required
+          />
+          <input
+            type="text"
+            name="employee_name"
+            placeholder="Employee Name"
+            value={newRecord.employee_name}
+            onChange={handleInputChange}
+            style={styles.input}
+            required
+          />
+          <input
+            type="text"
+            name="location"
+            placeholder="Location"
+            value={newRecord.location}
+            onChange={handleInputChange}
+            style={styles.input}
+          />
+          <select
+            name="status"
+            value={newRecord.status}
+            onChange={handleInputChange}
+            style={styles.select}
+            required
+          >
+            <option value="present">Present</option>
+            <option value="permission">Permission</option>
+            <option value="absent">Absent</option>
+          </select>
+          <button type="submit" style={styles.saveButton}>
+            {editIndex !== null ? 'Update Record' : 'Save Record'}
+          </button>
+        </form>
+      </div>
 
-      {/* Button to export attendance records */}
-      <button onClick={exportToCSV} style={styles.button}>Ekspor ke CSV</button>
-      <button onClick={exportToXLSX} style={styles.button}>Ekspor ke XLSX</button>
+      <div style={styles.exportButtons}>
+        <button onClick={exportToCSV} style={styles.button}>Export to CSV</button>
+        <button onClick={exportToXLSX} style={styles.button}>Export to XLSX</button>
+      </div>
 
-      {/* List of attendance entries */}
       <ul style={styles.recordList}>
         {attendanceRecords.length === 0 ? (
-          <li style={styles.recordItem}>Rekap Kehadiran Tidak Ada</li>
+          <li style={styles.recordItem}>No attendance records available.</li>
         ) : (
           attendanceRecords.map((record, index) => (
             <li key={index} style={styles.recordItem}>
-              <strong>Tanggal:</strong> {record.date} <br />
-              <strong>Nama:</strong> {record.employee_name} <br />
-              <strong>Lokasi Terkini:</strong> {record.location} <br />
+              <strong>Date:</strong> {record.date} <br />
+              <strong>Name:</strong> {record.employee_name} <br />
+              <strong>Location:</strong> {record.location} <br />
               <strong>Status:</strong> {record.status} <br />
               <button onClick={() => handleEdit(index)} style={styles.editButton}>Edit</button>
               <button onClick={() => handleDelete(index, record.id)} style={styles.deleteButton}>Delete</button>
@@ -171,38 +214,93 @@ const styles = {
     padding: '20px',
     maxWidth: '800px',
     backgroundColor: '#f9f9f9',
-    borderRadius: '8px',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    borderRadius: '12px',
+    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
   },
   header: {
     textAlign: 'center',
     color: '#333',
+    fontSize: '1.8rem',
+    marginBottom: '20px',
+  },
+  formContainer: {
+    marginBottom: '20px',
+    padding: '15px',
+    backgroundColor: '#ffffff',
+    borderRadius: '10px',
+    boxShadow: '0 6px 12px rgba(0, 0, 0, 0.1)',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  input: {
+    marginBottom: '10px',
+    padding: '10px',
+    fontSize: '1rem',
+    borderRadius: '6px',
+    border: '1px solid #ccc',
+  },
+  select: {
+    marginBottom: '10px',
+    padding: '10px',
+    fontSize: '1rem',
+    borderRadius: '6px',
+    border: '1px solid #ccc',
+  },
+  saveButton: {
+    padding: '10px 15px',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    borderRadius: '6px',
+    border: 'none',
+    cursor: 'pointer',
+  },
+  exportButtons: {
+    display: 'flex',
+    gap: '10px',
+    justifyContent: 'center',
+    marginBottom: '20px',
+  },
+  button: {
+    padding: '10px 15px',
+    borderRadius: '6px',
+    border: 'none',
+    backgroundColor: '#28a745',
+    color: '#fff',
+    cursor: 'pointer',
+    transition: 'background 0.3s ease',
   },
   recordList: {
     listStyleType: 'none',
     padding: 0,
   },
   recordItem: {
-    padding: '10px',
+    padding: '15px',
     marginBottom: '10px',
     backgroundColor: '#eef',
-    borderRadius: '4px',
+    borderRadius: '6px',
+    borderLeft: '5px solid #007bff',
   },
   editButton: {
-    marginRight: '5px',
-    backgroundColor: '#007bff',
+    marginRight: '8px',
+    backgroundColor: '#ffc107',
+    padding: '5px 10px',
+    borderRadius: '4px',
+    border: 'none',
+    cursor: 'pointer',
   },
   deleteButton: {
     backgroundColor: '#dc3545',
-  },
-  button: {
-    margin: '10px 5px',
-    padding: '10px 15px',
+    padding: '5px 10px',
     borderRadius: '4px',
     border: 'none',
-    backgroundColor: '#28a745',
-    color: '#fff',
     cursor: 'pointer',
+  },
+  error: {
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: '15px',
   },
 };
 
