@@ -4,7 +4,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #ff9100;
+    background-color: #e29b3e;
     padding: 10px 20px;
     color: white;
     font-family: Arial, sans-serif;
@@ -34,11 +34,11 @@
   }
   
   .nav-link:hover {
-    background-color: #ff9100; /* Darker green on hover */
+    background-color: #ee8d0fee; /* Darker green on hover */
   }
   
   .logout-button {
-    background-color: #ff9100;
+    background-color: #e09430;
     color: white;
     border: none;
     padding: 10px 15px;

@@ -187,22 +187,20 @@ const AdminPanel = () => {
         <button onClick={exportToXLSX} style={styles.button}>Export to XLSX</button>
       </div>
 
-      <ul style={styles.recordList}>
-        {attendanceRecords.length === 0 ? (
-          <li style={styles.recordItem}>No attendance records available.</li>
-        ) : (
-          attendanceRecords.map((record, index) => (
-            <li key={index} style={styles.recordItem}>
-              <strong>Date:</strong> {record.date} <br />
-              <strong>Name:</strong> {record.employee_name} <br />
-              <strong>Location:</strong> {record.location} <br />
-              <strong>Status:</strong> {record.status} <br />
+      <div style={styles.cardGrid}>
+        {attendanceRecords.slice(0, 6).map((record, index) => (
+          <div key={record.id} style={styles.card}>
+            <p><strong>Date:</strong> {record.date}</p>
+            <p><strong>Name:</strong> {record.employee_name}</p>
+            <p><strong>Location:</strong> {record.location}</p>
+            <p><strong>Status:</strong> {record.status}</p>
+            <div style={styles.cardButtons}>
               <button onClick={() => handleEdit(index)} style={styles.editButton}>Edit</button>
               <button onClick={() => handleDelete(index, record.id)} style={styles.deleteButton}>Delete</button>
-            </li>
-          ))
-        )}
-      </ul>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -271,30 +269,36 @@ const styles = {
     cursor: 'pointer',
     transition: 'background 0.3s ease',
   },
-  recordList: {
-    listStyleType: 'none',
-    padding: 0,
+  cardGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gap: '15px',
   },
-  recordItem: {
+  card: {
+    backgroundColor: '#fff',
     padding: '15px',
-    marginBottom: '10px',
-    backgroundColor: '#eef',
-    borderRadius: '6px',
-    borderLeft: '5px solid #007bff',
+    borderRadius: '8px',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+  },
+  cardButtons: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: '10px',
   },
   editButton: {
-    marginRight: '8px',
     backgroundColor: '#ffc107',
+    color: '#000',
     padding: '5px 10px',
-    borderRadius: '4px',
     border: 'none',
+    borderRadius: '4px',
     cursor: 'pointer',
   },
   deleteButton: {
     backgroundColor: '#dc3545',
+    color: '#fff',
     padding: '5px 10px',
-    borderRadius: '4px',
     border: 'none',
+    borderRadius: '4px',
     cursor: 'pointer',
   },
   error: {
@@ -303,5 +307,4 @@ const styles = {
     marginBottom: '15px',
   },
 };
-
 export default AdminPanel;
