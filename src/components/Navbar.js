@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AttendanceContext } from '../AttendanceContext';
 import './Navbar.css'; // Import the CSS file
+import logo from '../assets/logo.png'; // Import logo image
 
 const Navbar = () => {
   const { isAuthenticated, setIsAuthenticated, userRole } = useContext(AttendanceContext);
@@ -13,7 +14,9 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <div className="navbar-brand">KL LAZISMU BANTUL</div>
+      <div className="navbar-brand">
+        <img src={logo} alt="KL LAZISMU BANTUL" className="logo-image" />
+      </div>
       <div className="navbar-links">
         <Link to="/" className="nav-link">Home</Link>
         {!isAuthenticated ? (
