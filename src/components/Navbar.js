@@ -1,15 +1,17 @@
 // src/components/Navbar.js
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AttendanceContext } from '../AttendanceContext';
-import './Navbar.css'; // Import the CSS file
-import logo from '../assets/logo.png'; // Import logo image
+import './Navbar.css';
+import logo from '../assets/logo.png';
 
 const Navbar = () => {
   const { isAuthenticated, setIsAuthenticated, userRole } = useContext(AttendanceContext);
+  const navigate = useNavigate(); // ✅ gunakan navigate
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    setIsAuthenticated(false);     // Reset auth state
+    navigate('/');                 // Redirect ke halaman awal
   };
 
   return (

@@ -7,10 +7,10 @@ import Footer from "./components/Footer"
 import { AttendanceProvider } from "./AttendanceContext"
 import "./App.css"
 import welcomeImage from "./welcome.png"
+import { Toaster } from 'react-hot-toast'
 import "leaflet/dist/leaflet.css"
 
 const App = () => {
-  // Function to get greeting based on current time
   const getGreeting = () => {
     const hours = new Date().getHours()
     if (hours < 12) {
@@ -29,6 +29,7 @@ const App = () => {
       <Router>
         <div className="app-container">
           <Navbar />
+          <Toaster position="top-right" /> {/* ✅ Toaster ditempatkan di sini */}
           <main className="main-content">
             <Routes>
               <Route

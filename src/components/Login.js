@@ -1,9 +1,11 @@
 // src/components/Login.js
 import React, { useState, useContext } from 'react';
+import toast from 'react-hot-toast'; // ✅ Import di bagian atas
 import { AttendanceContext } from '../AttendanceContext';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient'; // Import the Supabase client
-import './Login.css'; // Import the CSS file
+import { supabase } from '../supabaseClient';
+import { motion } from 'framer-motion';
+import './Login.css';
 
 const Login = () => {
   const { setIsAuthenticated, setUserRole } = useContext(AttendanceContext);
@@ -16,7 +18,6 @@ const Login = () => {
     event.preventDefault();
 
     try {
-      // Fetch user data from the Supabase database
       const { data: user, error } = await supabase
         .from('users')
         .select('*')
@@ -28,37 +29,47 @@ const Login = () => {
         return;
       }
 
-      // Validate password (In production, this would be a hashed password)
       if (user.password === password) {
-        setIsAuthenticated(true);
-        setUserRole(user.role); // Set role based on user data
-        alert(`Logged in as: ${username}`);
+  setIsAuthenticated(true);
+  setUserRole(user.role);
+  
+  toast.success(`Login sebagai ${user.role === 'admin' ? 'Admin' : 'User'}`, {
+    duration: 3000,
+  });
 
-        // Redirect based on role
-        if (user.role === 'admin') {
-          navigate('/adminpanel'); // Admin to Admin Panel
-        } else {
-          navigate('/attendance'); // Employee to Take Attendance
-        }
-      } else {
-        setErrorMessage('Incorrect password');
-      }
+  navigate(user.role === 'admin' ? '/adminpanel' : '/attendance');
+} else {
+  setErrorMessage('Incorrect password');
+}
+
     } catch (err) {
       console.error('Login error:', err);
       setErrorMessage('An error occurred. Please try again later.');
     }
 
-    // Reset form fields
     setUsername('');
     setPassword('');
   };
 
   return (
-    <div className="container">
-      <h2 className="header">Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label className="label">Username:</label>
+    <motion.div 
+      className="login-container"
+      initial={{ opacity: 0, y: -30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <motion.h2 
+        className="login-header"
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        Selamat Datang 👋
+      </motion.h2>
+
+      <form onSubmit={handleSubmit} className="login-form">
+        <motion.div className="form-group" whileFocus={{ scale: 1.02 }}>
+          <label className="label">Username</label>
           <input 
             type="text" 
             value={username} 
@@ -66,9 +77,10 @@ const Login = () => {
             required 
             className="input"
           />
-        </div>
-        <div className="form-group">
-          <label className="label">Password:</label>
+        </motion.div>
+
+        <motion.div className="form-group" whileFocus={{ scale: 1.02 }}>
+          <label className="label">Password</label>
           <input 
             type="password" 
             value={password} 
@@ -76,11 +88,28 @@ const Login = () => {
             required 
             className="input"
           />
-        </div>
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <button type="submit" className="button">Login</button>
+        </motion.div>
+
+        {errorMessage && (
+          <motion.p 
+            className="error-message"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {errorMessage}
+          </motion.p>
+        )}
+
+        <motion.button 
+          type="submit" 
+          className="login-button"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Login
+        </motion.button>
       </form>
-    </div>
+    </motion.div>
   );
 };
 
